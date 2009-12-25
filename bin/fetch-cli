@@ -1,0 +1,152 @@
+#! /usr/bin/ruby
+#--
+# Copyright (c) 2010 by Whitepages, Inc. All Rights Reserved.
+#
+# File name: fetch-cli
+# Author:    Jay Hoover
+# Date:      12/22/2009
+#++
+#
+# === File Description
+# Submit a job to the crawler engine for processing or check on output status
+#
+# Usage:
+#
+#  fetch-cli submit <type> <url>
+#  fetch-cli submit <type> -f <filepath>
+#  fetch-cli status <crawl-id>
+#  fetch-cli view <url>
+#  fetch-cli output <url>
+
+require 'optparse'
+require 'rubygems'
+$: << File.expand_path(File.join(File.dirname(__FILE__), "../lib"))
+require 'fetch'
+
+
+$options = {
+  :verbose => false
+}
+
+$script_name = File.basename($0)
+
+
+def do_standard_opts(opts)
+  opts.on("-v", "--verbose",
+          "Default: #{$options[:verbose]}") { |$options[:verbose]| }
+  
+  opts.on("-h", "--help",
+          "Show this help message.") { puts opts; exit }
+end
+
+def do_submit
+  opts = ARGV.options do |opts|
+      opts.banner = %Q!
+Usage: 
+  #{$script_name} [command] [options]
+
+Description: 
+  This script is used to install and manage one or more services,
+  databases, and jobs on the local box based on the role(s) of the
+  box.
+
+Details:
+!
+    opts.on("-f", String,
+            "The file containing URLs to add to a crawl",
+            "Default: none") { |$options[:file]| }
+      
+    opts.on("-i", String,
+            "The ID for the crawl to add URLs to",
+            "Default: none") { |$options[:crawl]| }
+
+    do_standard_opts(opts)
+
+    opts.parse!
+  end
+
+  fetch_type = ARGV.shift
+  if fetch_type.nil?
+    puts "Error: type not specified"
+    puts opts
+  end
+
+  urls = []
+  if $options[:file]
+    puts "not implemented"
+    exit
+  else
+    if ARGV.length == 0
+      puts "Error: url not specified"
+      puts opts
+    end
+    urls = ARGV.clone
+  end
+
+  $options[:crawl] ||= Fetch::Client.create_crawl_id
+  
+  client = Fetch::Client.new
+
+  urls.each do |url|
+    client.submit(fetch_type, url, :crawl => $options[:crawl])
+  end
+end
+
+def do_view
+  puts "View: not implemented"
+end
+
+def do_status
+  puts "Status: not implemented"
+end
+
+def do_output
+  puts "Output: not implemented"
+end
+
+def do_peek
+  puts "Peek: not implemented"
+end
+
+def do_default
+  ARGV.options do |opts|
+      opts.banner = %Q!
+Usage: 
+  #{$script_name} [command] [options]
+
+Description: 
+  This script is used to blah blah blah blah
+
+Commands:
+  submit - Submit URLs or other seed information to a crawler.
+  view   - View the crawled URL
+  status - Check the status of a crawl
+  list   - List currently active crawls
+  output - Download the output from a crawl
+  peek   - Dump information on the next job to be performed for a crawl
+
+Details:
+!
+    do_standard_opts(opts)
+
+    puts opts
+  end
+  exit
+end    
+
+cmd = ARGV.shift
+case cmd
+when 'submit'
+  do_submit
+when 'view'
+  do_view
+when 'status'
+  do_status
+when 'output'
+  do_output
+when 'peek'
+  do_peek
+else
+  do_default
+end
+
