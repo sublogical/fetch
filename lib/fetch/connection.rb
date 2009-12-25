@@ -18,7 +18,8 @@ module Fetch
   class Connection
     OPTIONS = {
       :crawl_prefix => 'crawl:',
-      :db => 0
+      :db => 0,
+      :ttl => 10000
     }
 
     def initialize(options = {})
@@ -51,6 +52,9 @@ module Fetch
       queues.each do |queue|
         job_str = @redis.pop_head(crawl_key(queue))
         if job_str
+          if (@redis.list_length(crawl_key(queue)) == 0) then
+            @redis.expire(crawl_key(queue), @options[:ttl])
+          end
           job = unpack(job_str)
           return job if job
         end

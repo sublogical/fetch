@@ -12,6 +12,8 @@
 # Primary include for fetch library
 #
 
+require 'net/http'
+
 module Fetch
   class Handler
     @@handler_registry = {}
@@ -21,16 +23,35 @@ module Fetch
     end
 
     def self.process(job)
-      puts "registry = #{@@handler_registry.inspect}"
       handler_klass = @@handler_registry[job.handler_type.to_sym]
       if !handler_klass.nil?
         handler = handler_klass.new
         handler.process(job)
       end
     end
-    
+
+    # ripped from net/http example
+    def fetch(uri_str, limit = 10)
+      # You should choose better exception.
+      raise ArgumentError, 'HTTP redirect too deep' if limit == 0
+
+      response = Net::HTTP.get_response(URI.parse(uri_str))
+      case response
+      when Net::HTTPSuccess
+        response
+      when Net::HTTPRedirection
+        fetch(response['location'], limit - 1)
+      else
+        response.error!
+      end
+    end
+
     def process(job)
-      puts "processing #{job.url}"
+      resp = fetch(job.url)
+
+      puts resp.body
+      
+      
       # todo: go get hte file
       # todo: get links to follow
       extract_links(file)
