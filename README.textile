@@ -1,1 +1,20 @@
 h1. Fetch - Simple web crawling library
+
+
+h1. Todo List
+
+h2. Crawler Components
+* Page Handler Base
+  * done - Pull down a page
+  * Add in Nokogiri support
+  * Add in link extractor
+  * Add in project link filtering
+  * Add in project data extractor
+* Robots.txt Handler
+  * Disallow filter
+  * Sitemap
+* Sitemap handler
+  * GZ sitemap support
+  * Submap support
+  * Add in project sitemap link filtering
+  
