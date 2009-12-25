@@ -47,18 +47,26 @@ module Fetch
 
     public
     def list
-      @redis.keys(crawl_key('*'))
+      prefix_len = crawl_key('').length
+      keys = @redis.keys(crawl_key('*'))
+      keys.collect { |key| key[prefix_len..-1]}
     end
 
     public
     def reset(crawl_id = nil)
       crawl_ids = crawl_id if crawl_id.is_a?(Array)
       crawl_ids = [crawl_id] if !crawl_id.is_a?(Array) && !crawl_id.nil?
-      crawl_ids = self.list if crawl_ids.nil?
+      crawl_ids = self.list if crawl_ids.nil? || (crawl_id.is_a?(Array) && crawl_ids.length == 0)
 
+      count = 0
+      
       crawl_ids.each do |crawl_id|
-        @redis.del(crawl_key(crawl_id))
+        if @redis.del(crawl_key(crawl_id))
+          count += 1
+        end
       end
+      
+      count
     end
 
     private

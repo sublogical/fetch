@@ -257,7 +257,7 @@ when 'status'
 when 'list'
   do_list
 when 'reset'
-  do_list
+  do_reset
 when 'output'
   do_output
 when 'peek'
