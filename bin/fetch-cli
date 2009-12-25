@@ -216,7 +216,34 @@ def do_output
 end
 
 def do_peek
-  puts "Peek: not implemented"
+  crawl_ids = nil
+  
+  opts = ARGV.options do |opts|
+      opts.banner = %Q!
+Usage: 
+  #{$script_name} reset <crawl id> [options]
+
+Description: 
+  Resets the crawlers listed
+
+Details:
+!
+    do_standard_opts(opts)
+
+    opts.parse!
+
+    crawl_ids = ARGV.clone    
+  end
+  client = create_client
+
+  crawl_ids.each do |crawl_id|
+    output = client.status(crawl_id, 0, 0)
+    puts "Crawl: #{crawl_id}"
+    puts "  Pending Jobs: #{output[:count]}"
+    output[:jobs].each do |job|
+      puts "  #{job.describe}"
+    end
+  end
 end
 
 def do_default
