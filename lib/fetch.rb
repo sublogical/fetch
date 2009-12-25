@@ -15,3 +15,6 @@
 require 'fetch/client'
 require 'fetch/job'
 require 'fetch/connection'
+require 'fetch/worker'
+require 'fetch/handler'
+require 'fetch/backoff'

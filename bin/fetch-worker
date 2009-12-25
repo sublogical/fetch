@@ -1,0 +1,93 @@
+#! /usr/bin/ruby
+#--
+# Copyright (c) 2009 by Thoughtcrime, llc. All Rights Reserved.
+#
+# File name: fetch-worker
+# Author:    Jay Hoover
+# Date:      12/22/2009
+#++
+#
+# === File Description
+# Worker script to pull jobs from the redis queue and process
+#
+# Usage:
+#
+#  fetch-worker <home-path> [options]
+
+require 'optparse'
+require 'rubygems'
+$: << File.expand_path(File.join(File.dirname(__FILE__), "../lib"))
+require 'fetch'
+require 'furc'
+
+$options = {
+  :workers => 1,
+  :iterations => 1000,
+  :host => 'localhost',
+  :port => 6379,
+  :verbose => false,
+  :debug => false
+}
+
+$script_name = File.basename($0)
+
+# === Description
+# Standard options shared by all configurations
+#
+def parse_options
+  ARGV.options do |opts|
+    opts.banner = %Q!
+Usage: 
+  #{$script_name} <home path> [options]
+
+Description: 
+  Run a worker process to execute fetch tasks
+
+Details:
+!
+
+    opts.on("-w", "--workers=num",
+            "Default: #{$options[:workers]}") { |$options[:workers]| }
+  
+    opts.on("-i", "--iterations=num",
+            "Default: #{$options[:iterations]}") { |$options[:iterations]| }
+  
+    opts.on("-h", "--host=host",
+            "Default: #{$options[:host]}") { |$options[:host]| }
+    
+    opts.on("-p", "--port=port",
+            "Default: #{$options[:port]}") { |$options[:port]| }
+    
+    opts.on("-d", "--debug",
+            "Default: #{$options[:debug]}") { |$options[:debug]| }
+    
+    opts.on("-v", "--verbose",
+            "Default: #{$options[:verbose]}") { |$options[:verbose]| }
+    
+    opts.on("-h", "--help",
+            "Show this help message.") { puts opts; exit }
+
+    opts.parse!
+    
+    $working_dir = ARGV.shift
+    $working_dir ||= Dir.pwd
+  end
+end
+
+parse_options
+
+if $options[:verbose]
+  puts "Workers:       #{$options[:workers]}"
+  puts "Iterations:    #{$options[:iterations]}"
+end
+
+Fetch::Worker.load_handlers($working_dir)
+
+spawner = Furc::Spawner.new
+spawner.start($options[:workers]) do
+  puts "Worker Launch: #{Process.pid}"
+  worker = Fetch::Worker.new
+  worker.run($options[:iterations])
+  puts "Worker Exit:   #{Process.pid}"
+end
+

@@ -15,11 +15,11 @@ require 'json'
 
 module Fetch
   class Job
-    attr_accessor :type
+    attr_accessor :handler_type
     attr_accessor :url
     
-    def initialize(type, url)
-      @type = type
+    def initialize(handler_type, url)
+      @handler_type = handler_type
       @url = url
     end
 
@@ -41,7 +41,7 @@ module Fetch
 
     def to_hash
       {
-        'type' => @type,
+        'type' => @handler_type,
         'url' => @url
       }
     end

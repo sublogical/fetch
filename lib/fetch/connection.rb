@@ -46,6 +46,19 @@ module Fetch
     end
 
     public
+    def next_job
+      queues = self.list.shuffle
+      queues.each do |queue|
+        job_str = @redis.pop_head(crawl_key(queue))
+        if job_str
+          job = unpack(job_str)
+          return job if job
+        end
+      end
+      return nil
+    end
+    
+    public
     def list
       prefix_len = crawl_key('').length
       keys = @redis.keys(crawl_key('*'))

@@ -23,18 +23,12 @@ module Fetch
     
   class Client < Connection
     public
-    def submit_urls(crawl_id, type, urls)
+    def submit_urls(crawl_id, handler_type, urls)
       urls = [urls] if !urls.is_a?(Array)
       urls.each do |url|
-        job = Job.new(type, url)
+        job = Job.new(handler_type, url)
         self.submit(crawl_id, job)
       end
-    end
-
-    private
-    def connection
-      @connection ||= Connection.new(@options)
-      @connection
     end
   end
 end

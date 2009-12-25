@@ -1,6 +1,6 @@
 #! /usr/bin/ruby
 #--
-# Copyright (c) 2010 by Whitepages, Inc. All Rights Reserved.
+# Copyright (c) 2009 by Thoughtcrime, llc. All Rights Reserved.
 #
 # File name: fetch-cli
 # Author:    Jay Hoover
@@ -63,7 +63,7 @@ end
 #
 def do_submit
   urls = []
-  fetch_type = nil
+  handler_type = nil
 
   opts = ARGV.options do |opts|
       opts.banner = %Q!
@@ -80,6 +80,10 @@ Details:
             "The file containing URLs to add to a crawl",
             "Default: none") { |$options[:file]| }
       
+    opts.on("--local",
+            "Process the job locally",
+            "Default: off") { |$options[:local]| }
+      
     opts.on("-i", String,
             "The ID for the crawl to add URLs to",
             "Default: none") { |$options[:crawl]| }
@@ -88,8 +92,8 @@ Details:
 
     opts.parse!
 
-    fetch_type = ARGV.shift
-    if fetch_type.nil?
+    handler_type = ARGV.shift
+    if handler_type.nil?
       puts "Error: type not specified"
       puts opts
     end
@@ -107,11 +111,16 @@ Details:
   end
 
   $options[:crawl] ||= Fetch.create_crawl_id
-  
-  client = create_client
-  client.submit_urls($options[:crawl], fetch_type, urls)
-end
 
+  if $options[:local]
+    puts "Local execution not implemented"
+    exit
+  else
+    client = create_client
+    client.submit_urls($options[:crawl], handler_type, urls)
+  end
+end
+  
 # === Description
 # Command to dump the cached data for a URL
 #
