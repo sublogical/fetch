@@ -11,28 +11,29 @@
 # === File Description
 # Submits a job to the fetch redis-queue
 
-require 'fetch/extend.rb'
+require 'fetch/extend'
+require 'fetch/connection'
 
 module Fetch
   
-  class Client
-    public
-    def self.create_crawl_id
-      String.random(20)
-    end
+  public
+  def self.create_crawl_id
+    String.random(20)
+  end
     
+  class Client < Connection
     public
-    def submit(crawl_id, type, urls)
+    def submit_urls(crawl_id, type, urls)
       urls = [urls] if !urls.is_a?(Array)
       urls.each do |url|
         job = Job.new(type, url)
-        connection.submit(crawl_id, job)
+        self.submit(crawl_id, job)
       end
     end
 
     private
     def connection
-      @connection ||= Connection.new
+      @connection ||= Connection.new(@options)
       @connection
     end
   end

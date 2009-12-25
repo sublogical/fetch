@@ -28,12 +28,11 @@ module Fetch
     end
 
     def self.from_hash(hash)
-      raise "Expected Hash" if !hash.is_a?(hash)
-      raise "Expected Type" if hash[:type].nil?
-      raise "Expected URL" if hash[:url].nil?
+      raise "Expected Hash" if !hash.is_a?(Hash)
+      raise "Expected Type" if hash['type'].nil?
+      raise "Expected URL" if hash['url'].nil?
 
-      Job.new(:type => hash[:type],
-              :url => hash[:url])
+      Job.new(hash["type"], hash["url"])
     end
 
     def to_json
@@ -42,9 +41,13 @@ module Fetch
 
     def to_hash
       {
-        :type => @type,
-        :url => @url
+        'type' => @type,
+        'url' => @url
       }
+    end
+
+    def describe
+      "#{@type}: #{@url}"
     end
   end
 end
