@@ -13,6 +13,7 @@
 #
 
 require 'net/http'
+require 'nokogiri'
 
 module Fetch
   class Handler
@@ -49,15 +50,21 @@ module Fetch
     def process(job)
       resp = fetch(job.url)
 
-      puts resp.body
-      
+      doc = Nokogiri::HTML.parse(resp.body)
+
+      ####
+      # Search for nodes by xpath
+
+      doc.xpath('//a').each do |link|
+        puts link['href']
+      end
       
       # todo: go get hte file
       # todo: get links to follow
-      extract_links(file)
+      extract_links(doc)
       
       # todo: get data to mine
-      extract_output(file)
+      extract_output(doc)
     end
 
     def extract_links(file)
