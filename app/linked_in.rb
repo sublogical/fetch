@@ -1,5 +1,5 @@
 
-class LinkedIn < Handler
+class LinkedIn < Fetch::Handler
   register_type :linked_in
   
 # Idea for simple DSL for link filtering
